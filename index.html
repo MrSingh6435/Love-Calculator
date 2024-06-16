@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Love Calculator</title>
     <style>
+        /* Your CSS styles */
         @import url('https://fonts.googleapis.com/css2?family=Loved+by+the+King&family=Lovers+Quarrel&display=swap');
-
+        
         * {
             margin: 0;
             padding: 0;
         }
-
+        
         body {
             height: 100vh;
             display: flex;
@@ -22,13 +22,13 @@
             font-family: 'Loved by the King';
             background-color: pink;
         }
-
+        
         #heading {
             font-family: sans-serif;
             font-size: 1.45rem;
             margin-bottom: 20px;
         }
-
+        
         .matchmaker {
             width: 500px;
             min-height: 300px;
@@ -40,23 +40,25 @@
             align-items: center;
             border-radius: 15px;
         }
-
-        .matchmaker .you,
+        
+        .matchmaker .you {
+            width: 80%;
+        }
+        
         .matchmaker .other {
             width: 80%;
         }
-
+        
         .matchmaker input {
             outline: none;
             height: 30px;
-            width: 100%;
+            width: 90%;
             padding: 0px 7px;
             font-family: monospace;
             border-radius: 10px;
             border: 2px solid black;
-            margin-bottom: 10px;
         }
-
+        
         .matchmaker button {
             transform: translate(-15px, 0px);
             margin-top: 20px;
@@ -65,23 +67,23 @@
             border-radius: 10px;
             background-color: plum;
         }
-
+        
         .matchmaker .percentage {
             margin-top: 15px;
             transform: translateX(-10px);
             font-family: monospace;
             font-size: 1.25rem;
         }
-
-        @media (max-width: 550px) {
+        
+        @media (max-width:550px) {
             .matchmaker {
                 width: 70%;
             }
-
+        
             .matchmaker h2 {
                 font-size: 1.3rem;
             }
-
+        
             .btn1,
             .btn2 {
                 transform: translateX(10px);
@@ -89,7 +91,6 @@
         }
     </style>
 </head>
-
 <body>
 
     <h2 id="heading">Love Calculator</h2>
@@ -109,6 +110,38 @@
     </div>
 
     <script>
+        // Node.js server setup using Express
+        const express = require('express');
+        const fs = require('fs');
+        const app = express();
+        const port = 3000;
+
+        // Middleware to parse JSON bodies
+        app.use(express.json());
+
+        // Endpoint to receive and store love calculation data
+        app.post('/saveLoveData', (req, res) => {
+            const { yourName, partnerName, loveScore } = req.body;
+
+            // Example: Save data to a local file
+            const data = `${yourName},${partnerName},${loveScore}%\n`;
+            fs.appendFile('loveData.txt', data, (err) => {
+                if (err) {
+                    console.error('Error saving data:', err);
+                    res.status(500).send('Error saving data');
+                } else {
+                    console.log('Data saved successfully:', data);
+                    res.status(200).send('Data saved successfully');
+                }
+            });
+        });
+
+        // Start the server
+        app.listen(port, () => {
+            console.log(`Server running at http://localhost:${port}`);
+        });
+
+        // Client-side JavaScript
         async function calculateLove() {
             const yourName = document.getElementById('yourName').value.trim();
             const partnerName = document.getElementById('partnerName').value.trim();
@@ -131,15 +164,28 @@
             loveScore = loveScore % 101;
             result.innerText = `Love Score: ${loveScore}%`;
 
-            // Prepare data to send to GitHub
-            const data = `${yourName},${partnerName},${loveScore}%\n`;
+            // Send data to your Node.js server
+            const url = 'http://localhost:3000/saveLoveData';
+            const data = { yourName, partnerName, loveScore };
 
             try {
-                await saveToGitHub(data);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save data');
+                }
+
+                console.log('Data saved successfully');
                 btn1.style.display = 'none';
                 btn2.style.display = 'block';
             } catch (error) {
-                console.error('Error saving to GitHub:', error);
+                console.error('Error saving data:', error);
             }
         }
 
@@ -150,66 +196,7 @@
             document.querySelector('.btn1').style.display = 'block';
             document.querySelector('.btn2').style.display = 'none';
         }
-
-        async function saveToGitHub(newData) {
-            const token = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'; // Replace with your token
-            const repo = 'YOUR_USERNAME/YOUR_REPO'; // Replace with your repo
-            const path = 'data.txt'; // File path in the repo
-            const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-            let content;
-            let sha = null;
-
-            try {
-                // Get the current file content and SHA
-                const response = await fetch(url, {
-                    headers: {
-                        Authorization: `token ${token}`,
-                    },
-                });
-
-                if (response.ok) {
-                    const file = await response.json();
-                    const existingContent = atob(file.content);
-                    content = btoa(existingContent + newData);
-                    sha = file.sha;
-                } else {
-                    // If the file does not exist, create a new one with initial content
-                    content = btoa(newData);
-                }
-            } catch (error) {
-                console.error('Error fetching existing file:', error);
-                return;
-            }
-
-            const body = {
-                message: 'Add new love calculation',
-                content: content,
-                sha: sha
-            };
-
-            try {
-                // Update file content
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(body)
-                });
-
-                if (response.ok) {
-                    console.log('File updated successfully');
-                } else {
-                    console.error('Error updating file:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error updating file:', error);
-            }
-        }
     </script>
 
 </body>
-
 </html>
