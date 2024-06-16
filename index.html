@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Loved+by+the+King&family=Lovers+Quarrel&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Loved by the King';
+            background-color: pink;
+        }
+
+        #heading {
+            font-family: sans-serif;
+            font-size: 1.45rem;
+            margin-bottom: 20px;
+        }
+
+        .matchmaker {
+            width: 500px;
+            min-height: 300px;
+            background-color: rgb(221, 128, 159);
+            font-size: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+        }
+
+        .matchmaker .you {
+            width: 80%;
+        }
+
+        .matchmaker .other {
+            width: 80%;
+        }
+
+        .matchmaker input {
+            outline: none;
+            height: 30px;
+            width: 90%;
+            padding: 0px 7px;
+            font-family: monospace;
+            border-radius: 10px;
+            border: 2px solid black;
+        }
+
+        .matchmaker button {
+            transform: translate(-15px, 0px);
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid peachpuff;
+            border-radius: 10px;
+            background-color: plum;
+        }
+
+        .matchmaker .percentage {
+            margin-top: 15px;
+            transform: translateX(-10px);
+            font-family: monospace;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width:550px) {
+            .matchmaker {
+                width: 70%;
+            }
+
+            .matchmaker h2 {
+                font-size: 1.3rem;
+            }
+
+            .btn1,
+            .btn2 {
+                transform: translateX(10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2 id="heading">Love Calculator</h2>
+
+    <div class="matchmaker">
+        <div class="you">
+            <h2>Enter your Name Here</h2>
+            <input type="text" id="yourName" placeholder="Enter Name">
+        </div>
+        <div class="other">
+            <h2>Enter Partner's Name</h2>
+            <input type="text" id="partnerName" placeholder="Enter Name">
+        </div>
+        <div class="percentage" id="result"></div>
+        <button class="btn1" onclick="calculateLove()">Calculate Love %</button>
+        <button class="btn2" onclick="refreshPage()" style="display:none;">Refresh Page</button>
+    </div>
+
+    <!-- <script>
+        async function calculateLove() {
+            const yourName = document.getElementById('yourName').value.trim();
+            const partnerName = document.getElementById('partnerName').value.trim();
+            const result = document.getElementById('result');
+            const btn1 = document.querySelector('.btn1');
+            const btn2 = document.querySelector('.btn2');
+
+            if (!yourName || !partnerName) {
+                alert('Please enter both names');
+                return;
+            }
+
+            const combinedNames = yourName.toLowerCase() + partnerName.toLowerCase();
+            let loveScore = 0;
+
+            for (let i = 0; i < combinedNames.length; i++) {
+                loveScore += combinedNames.charCodeAt(i);
+            }
+
+            loveScore = loveScore % 101;
+            result.innerText = `Love Score: ${loveScore}%`;
+
+            // Prepare data to send to GitHub
+            const data = {
+                yourName,
+                partnerName,
+                loveScore
+            };
+
+            try {
+                await saveToGitHub(data);
+                btn1.style.display = 'none';
+                btn2.style.display = 'block';
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+            }
+        }
+
+        function refreshPage() {
+            document.getElementById('yourName').value = '';
+            document.getElementById('partnerName').value = '';
+            document.getElementById('result').innerText = '';
+            document.querySelector('.btn1').style.display = 'block';
+            document.querySelector('.btn2').style.display = 'none';
+        }
+
+        async function saveToGitHub(data) {
+            const token = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'; // Replace with your token
+            const repo = 'YOUR_USERNAME/YOUR_REPO'; // Replace with your repo
+            const path = 'data.txt'; // File path in the repo
+            const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+            const content = btoa(JSON.stringify(data, null, 2)); // Encode data to base64
+
+            // Get the current file SHA
+            const response = await fetch(url, {
+                headers: {
+                    Authorization: `token ${token}`,
+                },
+            });
+
+            const file = await response.json();
+            const sha = file.sha;
+
+            const body = {
+                message: 'Add new love calculation',
+                content: content,
+                sha: sha
+            };
+
+            await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+        }
+    </script> -->
+
+    <script>
+        async function calculateLove() {
+            const yourName = document.getElementById('yourName').value.trim();
+            const partnerName = document.getElementById('partnerName').value.trim();
+            const result = document.getElementById('result');
+            const btn1 = document.querySelector('.btn1');
+            const btn2 = document.querySelector('.btn2');
+
+            if (!yourName || !partnerName) {
+                alert('Please enter both names');
+                return;
+            }
+
+            const combinedNames = yourName.toLowerCase() + partnerName.toLowerCase();
+            let loveScore = 0;
+
+            for (let i = 0; i < combinedNames.length; i++) {
+                loveScore += combinedNames.charCodeAt(i);
+            }
+
+            loveScore = loveScore % 101;
+            result.innerText = `Love Score: ${loveScore}%`;
+
+            // Prepare data to send to GitHub
+            const data = `${yourName},${partnerName},${loveScore}%\n`;
+
+            try {
+                await saveToGitHub(data);
+                btn1.style.display = 'none';
+                btn2.style.display = 'block';
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+            }
+        }
+
+        function refreshPage() {
+            document.getElementById('yourName').value = '';
+            document.getElementById('partnerName').value = '';
+            document.getElementById('result').innerText = '';
+            document.querySelector('.btn1').style.display = 'block';
+            document.querySelector('.btn2').style.display = 'none';
+        }
+
+        async function saveToGitHub(newData) {
+            const token = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'; // Replace with your token
+            const repo = 'YOUR_USERNAME/YOUR_REPO'; // Replace with your repo
+            const path = 'data.txt'; // File path in the repo
+            const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+            let content;
+            let sha = null;
+
+            try {
+                // Get the current file content and SHA
+                const response = await fetch(url, {
+                    headers: {
+                        Authorization: `token ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const file = await response.json();
+                    const existingContent = atob(file.content);
+                    content = btoa(existingContent + newData);
+                    sha = file.sha;
+                } else {
+                    // If the file does not exist, create a new one with initial content
+                    content = btoa(newData);
+                }
+            } catch (error) {
+                console.error('Error fetching existing file:', error);
+                return;
+            }
+
+            const body = {
+                message: 'Add new love calculation',
+                content: content,
+                sha: sha
+            };
+
+            await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+        }
+
+        document.querySelector('.btn1').addEventListener('click', calculateLove);
+        document.querySelector('.btn2').addEventListener('click', refreshPage);
+    </script>
+
+
+</body>
+
+</html>
