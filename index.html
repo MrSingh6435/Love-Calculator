@@ -41,10 +41,7 @@
             border-radius: 15px;
         }
 
-        .matchmaker .you {
-            width: 80%;
-        }
-
+        .matchmaker .you,
         .matchmaker .other {
             width: 80%;
         }
@@ -52,11 +49,12 @@
         .matchmaker input {
             outline: none;
             height: 30px;
-            width: 90%;
+            width: 100%;
             padding: 0px 7px;
             font-family: monospace;
             border-radius: 10px;
             border: 2px solid black;
+            margin-bottom: 10px;
         }
 
         .matchmaker button {
@@ -75,7 +73,7 @@
             font-size: 1.25rem;
         }
 
-        @media (max-width:550px) {
+        @media (max-width: 550px) {
             .matchmaker {
                 width: 70%;
             }
@@ -109,88 +107,6 @@
         <button class="btn1" onclick="calculateLove()">Calculate Love %</button>
         <button class="btn2" onclick="refreshPage()" style="display:none;">Refresh Page</button>
     </div>
-
-    <!-- <script>
-        async function calculateLove() {
-            const yourName = document.getElementById('yourName').value.trim();
-            const partnerName = document.getElementById('partnerName').value.trim();
-            const result = document.getElementById('result');
-            const btn1 = document.querySelector('.btn1');
-            const btn2 = document.querySelector('.btn2');
-
-            if (!yourName || !partnerName) {
-                alert('Please enter both names');
-                return;
-            }
-
-            const combinedNames = yourName.toLowerCase() + partnerName.toLowerCase();
-            let loveScore = 0;
-
-            for (let i = 0; i < combinedNames.length; i++) {
-                loveScore += combinedNames.charCodeAt(i);
-            }
-
-            loveScore = loveScore % 101;
-            result.innerText = `Love Score: ${loveScore}%`;
-
-            // Prepare data to send to GitHub
-            const data = {
-                yourName,
-                partnerName,
-                loveScore
-            };
-
-            try {
-                await saveToGitHub(data);
-                btn1.style.display = 'none';
-                btn2.style.display = 'block';
-            } catch (error) {
-                console.error('Error saving to GitHub:', error);
-            }
-        }
-
-        function refreshPage() {
-            document.getElementById('yourName').value = '';
-            document.getElementById('partnerName').value = '';
-            document.getElementById('result').innerText = '';
-            document.querySelector('.btn1').style.display = 'block';
-            document.querySelector('.btn2').style.display = 'none';
-        }
-
-        async function saveToGitHub(data) {
-            const token = 'YOUR_GITHUB_PERSONAL_ACCESS_TOKEN'; // Replace with your token
-            const repo = 'YOUR_USERNAME/YOUR_REPO'; // Replace with your repo
-            const path = 'data.txt'; // File path in the repo
-            const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-            const content = btoa(JSON.stringify(data, null, 2)); // Encode data to base64
-
-            // Get the current file SHA
-            const response = await fetch(url, {
-                headers: {
-                    Authorization: `token ${token}`,
-                },
-            });
-
-            const file = await response.json();
-            const sha = file.sha;
-
-            const body = {
-                message: 'Add new love calculation',
-                content: content,
-                sha: sha
-            };
-
-            await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
-        }
-    </script> -->
 
     <script>
         async function calculateLove() {
@@ -272,20 +188,27 @@
                 sha: sha
             };
 
-            await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    Authorization: `token ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body)
-            });
+            try {
+                // Update file content
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    console.log('File updated successfully');
+                } else {
+                    console.error('Error updating file:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error updating file:', error);
+            }
         }
-
-        document.querySelector('.btn1').addEventListener('click', calculateLove);
-        document.querySelector('.btn2').addEventListener('click', refreshPage);
     </script>
-
 
 </body>
 
