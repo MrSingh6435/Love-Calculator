@@ -110,39 +110,7 @@
     </div>
 
     <script>
-        // Node.js server setup using Express
-        const express = require('express');
-        const fs = require('fs');
-        const app = express();
-        const port = 3000;
-
-        // Middleware to parse JSON bodies
-        app.use(express.json());
-
-        // Endpoint to receive and store love calculation data
-        app.post('/saveLoveData', (req, res) => {
-            const { yourName, partnerName, loveScore } = req.body;
-
-            // Example: Save data to a local file
-            const data = `${yourName},${partnerName},${loveScore}%\n`;
-            fs.appendFile('loveData.txt', data, (err) => {
-                if (err) {
-                    console.error('Error saving data:', err);
-                    res.status(500).send('Error saving data');
-                } else {
-                    console.log('Data saved successfully:', data);
-                    res.status(200).send('Data saved successfully');
-                }
-            });
-        });
-
-        // Start the server
-        app.listen(port, () => {
-            console.log(`Server running at http://localhost:${port}`);
-        });
-
-        // Client-side JavaScript
-        async function calculateLove() {
+        function calculateLove() {
             const yourName = document.getElementById('yourName').value.trim();
             const partnerName = document.getElementById('partnerName').value.trim();
             const result = document.getElementById('result');
@@ -164,29 +132,21 @@
             loveScore = loveScore % 101;
             result.innerText = `Love Score: ${loveScore}%`;
 
-            // Send data to your Node.js server
-            const url = 'http://localhost:3000/saveLoveData';
-            const data = { yourName, partnerName, loveScore };
+            // Store data locally
+            const data = {
+                yourName,
+                partnerName,
+                loveScore
+            };
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+            // Example of using localStorage
+            const storedData = JSON.parse(localStorage.getItem('loveData')) || [];
 
-                if (!response.ok) {
-                    throw new Error('Failed to save data');
-                }
+            storedData.push(data);
+            localStorage.setItem('loveData', JSON.stringify(storedData));
 
-                console.log('Data saved successfully');
-                btn1.style.display = 'none';
-                btn2.style.display = 'block';
-            } catch (error) {
-                console.error('Error saving data:', error);
-            }
+            btn1.style.display = 'none';
+            btn2.style.display = 'block';
         }
 
         function refreshPage() {
